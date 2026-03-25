@@ -11,9 +11,9 @@ from datetime import datetime
 import pytesseract
 from PIL import Image
 
-from config import TESSERACT_CMD
+# from config import TESSERACT_CMD
 
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
+# pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
 
 # Regex for SBI bank statement lines
 SBI_PATTERN = re.compile(
