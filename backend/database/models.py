@@ -59,7 +59,7 @@ class Payable(Base):
     name = Column(Text, nullable=False)
     amount = Column(Float, nullable=False)
     due_date = Column(Date, nullable=False)
-    category = Column(Text, nullable=False)  # vendor/salary/rent/utility/subscription/emi
+    category = Column(Text, nullable=True)  # vendor/salary/rent/utility/subscription/emi
     penalty_risk = Column(Integer, default=50)
     operational_importance = Column(Integer, default=50)
     flexibility = Column(Integer, default=50)
