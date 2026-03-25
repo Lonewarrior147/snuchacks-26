@@ -92,8 +92,6 @@ def process_bank_statement(image_path: str) -> list[dict]:
 import json
 import google.generativeai as genai
 
-from config import GEMINI_API_KEY
-
 genai.configure(api_key="AIzaSyCbQnl49PmsMrKaZrNxWAPPb608wNsMY_s")
 gemini_model = genai.GenerativeModel('gemini-2.5-flash')
 
