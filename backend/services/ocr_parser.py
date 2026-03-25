@@ -67,7 +67,82 @@ def parse_sbi_transactions(raw_text: str) -> list[dict]:
     return transactions
 
 
+# def process_bank_statement(image_path: str) -> list[dict]:
+#     """Full pipeline: image → OCR text → parsed transactions."""
+#     raw_text = extract_text_from_image(image_path)
+#     return parse_sbi_transactions(raw_text)
+
 def process_bank_statement(image_path: str) -> list[dict]:
-    """Full pipeline: image → OCR text → parsed transactions."""
+    """
+    Full pipeline:
+    image → OCR → regex parsing → fallback Gemini
+    """
     raw_text = extract_text_from_image(image_path)
-    return parse_sbi_transactions(raw_text)
+
+    # Step 1: Try SBI regex parser
+    transactions = parse_sbi_transactions(raw_text)
+
+    # Step 2: Fallback to Gemini if regex fails
+    if not transactions:
+        print("⚠️ Regex failed, using Gemini fallback...")
+        transactions = parse_with_gemini(raw_text)
+
+    return transactions
+
+import json
+import google.generativeai as genai
+
+from config import GEMINI_API_KEY
+
+genai.configure(api_key="AIzaSyCbQnl49PmsMrKaZrNxWAPPb608wNsMY_s")
+gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+
+def parse_with_gemini(raw_text: str) -> list[dict]:
+    """
+    Fallback parser using Gemini when regex fails.
+    """
+
+    prompt = f"""
+You are a financial data parser.
+
+Extract transaction data from the OCR text.
+
+Return ONLY valid JSON (no explanation).
+
+Format:
+[
+  {{
+    "counterparty_name": "string",
+    "transaction_type": "credit/debit",
+    "amount": float,
+    "balance_after": float,
+    "created_at": "YYYY-MM-DD"
+  }}
+]
+
+OCR TEXT:
+{raw_text}
+"""
+
+    response = gemini_model.generate_content(prompt)
+    raw = response.text.strip()
+
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+
+    try:
+        data = json.loads(raw)
+
+        # Convert date string → datetime
+        for txn in data:
+            txn["created_at"] = datetime.strptime(txn["created_at"], "%Y-%m-%d")
+
+        return data
+
+    except Exception as e:
+        print("Gemini parsing failed:", e)
+        print("Raw response:", raw)
+        return []
+
+
+
