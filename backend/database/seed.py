@@ -22,10 +22,14 @@ def seed_database():
     db: Session = SessionLocal()
 
     # Check if already seeded
-    if db.query(User).first():
-        print("Database already seeded. Skipping.")
-        db.close()
-        return
+    # Clear existing data (DEV MODE ONLY)
+    db.query(Transaction).delete()
+    db.query(Payable).delete()
+    db.query(Receivable).delete()
+    db.query(DailyExpense).delete()
+    db.query(NewsItem).delete()
+    db.query(User).delete()
+    db.commit()
 
     today = date.today()
 
@@ -181,31 +185,31 @@ def seed_database():
         DailyExpense(
             user_id=user.id,
             description="Daily vegetable purchase",
-            amount=800.0,
+            amount=1000.0,
             is_active=True,
         ),
         DailyExpense(
             user_id=user.id,
             description="Cooking oil & spices",
-            amount=300.0,
+            amount=1000.0,
             is_active=True,
         ),
         DailyExpense(
             user_id=user.id,
             description="Packaging & delivery",
-            amount=400.0,
+            amount=1000.0,
             is_active=True,
         ),
         DailyExpense(
             user_id=user.id,
             description="Fuel / transport",
-            amount=250.0,
+            amount=1000.0,
             is_active=True,
         ),
         DailyExpense(
             user_id=user.id,
             description="Miscellaneous / chai / snacks",
-            amount=250.0,
+            amount=1000.0,
             is_active=True,
         ),
     ]
